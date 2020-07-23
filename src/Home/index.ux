@@ -1,10 +1,10 @@
 <template>
   <div class="home-page">
     <div class="home-header">
-      <text id="{{status === 'todo'? 'active-title' : '' }}">待办</text>
-      <text @click="changePage('doing')">在办</text>
-      <text @click="changePage('done')">已办</text>
-      <text @click="changePage('count')">统计</text>
+      <text id="{{status === 'todo'? 'active-title' : '' }}" @click="changePage('todo')">待办</text>
+      <text id="{{status === 'doing'? 'active-title' : '' }}" @click="changePage('doing')">在办</text>
+      <text id="{{status === 'done'? 'active-title' : '' }}" @click="changePage('done')">已办</text>
+      <text id="{{status === 'count'? 'active-title' : '' }}" @click="changePage('count')">统计</text>
     </div>
     <list>
       <list-item for="listData" type="listItem" class="list-item">
@@ -12,7 +12,13 @@
       </list-item>
     </list>
     <div class="add-button" @click="showHint">
-      
+      <div class="vertical-div"></div>
+       <div class="horizontal-div"></div>
+    </div>
+    <div id="{{filterId}}" if="filterShow" @click="handleCancel">
+    </div>
+    <div id="{{addDivId}}" if="filterShow">
+        <input class="add-input" type="text" ></input>
     </div>
   </div>
 </template>
@@ -24,7 +30,10 @@ import prompt from '@system.prompt'
 export default {
   private: {
     listData:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,16,17],
-    status:'todo'                //
+    status:'todo',                //
+    filterShow:false,
+    addDivId:'add-div',
+    filterId:'filter'
   },
   routeDetail () {
     router.push ({
@@ -35,15 +44,118 @@ export default {
     this.$app.$def.showMenu()
   },
   showHint () {
-    prompt.showToast({ message: '123' })
+    this.filterShow=!this.filterShow
+    //prompt.showToast({ message: '123' })
   },
   changePage(status){
-
+    this.status=status
+  },
+  handleCancel(){
+    this.addDivId='add-div-out'
+    this.filterId='filter-out'
+    setTimeout(()=>{
+      this.filterShow=false
+      this.addDivId='add-div'
+      this.filterId='filter'
+    },196)
   }
 }
 </script>
 
 <style lang="less">
+
+
+  @keyframes filterout{
+    0% {
+      opacity: 0.2;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes moveout{
+    0% {
+      transform: translateY(0px);
+    }
+    100% {
+      transform: translateY(300px);
+    }
+  }
+
+  @keyframes movein{
+    0% {
+      transform: translateY(300px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+    #add-div-out{
+    z-index: 30;
+    position: fixed;
+    border-radius: 40px;
+    height: 800px;
+    width: 100%;
+    background-color: #fff;
+    bottom: 0px;
+    animation-name: moveout;
+    animation-duration: 200ms;
+    animation-fill-mode: none;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+    .add-input{
+      height: 200px;
+      width: 100%;
+      background-color: #000;
+      border-radius: 40px;
+    }
+  }
+
+  #add-div{
+    z-index: 30;
+    position: fixed;
+    border-radius: 40px;
+    height: 800px;
+    width: 100%;
+    background-color: #fff;
+    bottom: 0px;
+    animation-name: movein;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+    .add-input{
+      height: 200px;
+      width: 100%;
+      background-color: #fff;
+      border-radius: 40px;
+    }
+  }
+
+  #filter{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: .2;
+    z-index: 20;
+  }
+
+  #filter-out{
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: .2;
+    z-index: 20;
+    animation-name: filterout;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+  }
 
   .list-item{
     height: 132px;
@@ -86,6 +198,7 @@ export default {
   }
 
   .add-button{
+    z-index: 10;
     position: fixed;
     bottom: 68px;
     right: 68px;
@@ -93,5 +206,24 @@ export default {
     height: 120px;
     background-color: #ffc100;
     border-radius: 50%;
+    .vertical-div {
+      height: 60px;
+      width: 8px;
+      background-color: #fff;
+      position: relative;
+      left:56px;
+      border-radius: 4px;
+      top:30px;
+    }
+    .horizontal-div {
+      height: 8px;
+      width: 60px;
+      background-color: #fff;
+      position: relative;
+      left:22px;
+      border-radius: 4px;
+      top:56px;
+    }
   }
+
 </style>
