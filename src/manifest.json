@@ -3,6 +3,7 @@
   "name": "k-demo",
   "versionName": "1.0.0",
   "versionCode": "1",
+  "designWidth": 750,
   "minPlatformVersion": "1020",
   "icon": "/Common/logo.png",
   "deviceTypeList": [
@@ -28,9 +29,9 @@
     "logLevel": "log"
   },
   "router": {
-    "entry": "Demo",
+    "entry": "Home",
     "pages": {
-      "Demo": {
+      "Home": {
         "component": "index"
       },
       "DemoDetail": {

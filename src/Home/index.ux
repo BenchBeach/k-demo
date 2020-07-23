@@ -1,0 +1,97 @@
+<template>
+  <div class="home-page">
+    <div class="home-header">
+      <text id="{{status === 'todo'? 'active-title' : '' }}">待办</text>
+      <text @click="changePage('doing')">在办</text>
+      <text @click="changePage('done')">已办</text>
+      <text @click="changePage('count')">统计</text>
+    </div>
+    <list>
+      <list-item for="listData" type="listItem" class="list-item">
+        <text>{{$item}}</text>
+      </list-item>
+    </list>
+    <div class="add-button" @click="showHint">
+      
+    </div>
+  </div>
+</template>
+
+<script>
+import router from '@system.router'
+import prompt from '@system.prompt'
+
+export default {
+  private: {
+    listData:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,16,17],
+    status:'todo'                //
+  },
+  routeDetail () {
+    router.push ({
+      uri: '/DemoDetail'
+    })
+  },
+  onMenuPress() {
+    this.$app.$def.showMenu()
+  },
+  showHint () {
+    prompt.showToast({ message: '123' })
+  },
+  changePage(status){
+
+  }
+}
+</script>
+
+<style lang="less">
+
+  .list-item{
+    height: 132px;
+    background-color: #fff;
+    border-radius: 24px;
+    margin: 8px 18px 8px 18px;
+    padding: 0px 12px 0px 18px;
+  }
+
+  .home-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #f7f7f7;
+    .home-header {
+      width: 750px;
+      height: 140px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: bottom ;
+      padding:18px 10px 0px 10px;
+      > text {
+        font-size: 64px;
+        color: #959595;
+        font-weight: normal;
+      }
+      #active-title {
+        font-size: 64px;
+        color: #000 ;
+        font-weight: bold ;
+      }
+    }
+  }
+
+  .title {
+    font-size: 40px;
+    text-align: center;
+  }
+
+  .add-button{
+    position: fixed;
+    bottom: 68px;
+    right: 68px;
+    width: 120px;
+    height: 120px;
+    background-color: #ffc100;
+    border-radius: 50%;
+  }
+</style>

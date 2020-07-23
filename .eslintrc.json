@@ -62,6 +62,7 @@
     "semi": [
       "warn",
       "never"
-    ]
+    ],
+    "no-irregular-whitespace":"off"
   }
 }
