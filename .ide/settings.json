@@ -1,3 +1,4 @@
 {
-    "hap-debugger.toolkitPort": 10002
+    "hap-debugger.toolkitPort": 10002,
+    "hap-debugger.autoCompile": true
 }

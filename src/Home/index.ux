@@ -8,7 +8,7 @@
     </div>
     <list>
       <list-item for="listData" type="listItem" class="list-item">
-        <text>{{$item}}</text>
+        <text class="list-text">{{$item}}</text>
       </list-item>
     </list>
     <div class="add-button" @click="showHint">
@@ -18,7 +18,20 @@
     <div id="{{filterId}}" if="filterShow" @click="handleCancel">
     </div>
     <div id="{{addDivId}}" if="filterShow">
-        <input class="add-input" type="text" ></input>
+        <textarea id="textarea" onchange="textareaChange" class="add-textarea" placeholder="输入待办事项" maxlength=50>
+        {{newToDo}}
+        </textarea>
+        <div class="button-container">
+          <div></div>
+          <div class="bottom-button-container">
+            <div class="finish-button" @click="handleFinish">
+              <text>完成</text>
+            </div>
+            <div class="cancel-button" @click="handleToast('长按放弃添加')" @longpress="handleForgive()">
+              <text>放弃</text>
+            </div>
+          </div>
+        </div>
     </div>
   </div>
 </template>
@@ -29,11 +42,12 @@ import prompt from '@system.prompt'
 
 export default {
   private: {
-    listData:[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,9,10,11,12,13,14,15,16,17],
+    listData:['啊啊啊啊啊啊啊啊啊啊啊',2,3,4],
     status:'todo',                //
     filterShow:false,
     addDivId:'add-div',
-    filterId:'filter'
+    filterId:'filter',
+    newToDo:''
   },
   routeDetail () {
     router.push ({
@@ -58,12 +72,43 @@ export default {
       this.addDivId='add-div'
       this.filterId='filter'
     },196)
+  },
+  textareaChange(e){
+    this.newToDo=e.text
+  },
+  handleToast(text){
+    prompt.showToast({ message: text })
+  },
+  handleFinish(){
+    this.listData.unshift(this.newToDo)
+    this.newToDo=''
+    this.handleCancel()
+  },
+  handleForgive(){
+    this.newToDo=''
+    this.handleCancel()
   }
 }
 </script>
 
 <style lang="less">
 
+  @myyellow:#ffc100;
+
+  .add-div-mixin() {
+    z-index: 30;
+    position: fixed;
+    border-radius: 40px;
+    height: 980px;
+    width: 100%;
+    background-color: #fff;
+    bottom: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0px 18px 0px 18px;
+  }
 
   @keyframes filterout{
     0% {
@@ -92,45 +137,86 @@ export default {
     }
   }
 
-    #add-div-out{
-    z-index: 30;
-    position: fixed;
-    border-radius: 40px;
-    height: 800px;
+  .bottom-button-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
     width: 100%;
+    .cancel-button {
+    height: 72px;
+    width: 160px;
     background-color: #fff;
-    bottom: 0px;
+    border-radius: 36px;
+    >text {
+      width: 160px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      color: red;
+    }
+    }
+  }
+
+  .finish-button{
+    height: 72px;
+    width: 400px;
+    background-color: #fff;
+    border-radius: 36px;
+    >text {
+      width: 400px;
+      text-align: center;
+      font-size: 36px;
+      font-weight: bold;
+      color: @myyellow;
+    }
+  }
+
+  .button-container{
+    height: 670px;
+    width: 100%;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px 0px 20px;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  .list-text {
+    lines: 3;
+    text-overflow: ellipsis;
+  }
+
+    #add-div-out{
+    .add-div-mixin();
     animation-name: moveout;
     animation-duration: 200ms;
     animation-fill-mode: none;
     animation-timing-function: ease-in;
     animation-iteration-count: 1;
-    .add-input{
+    .add-textarea{
       height: 200px;
       width: 100%;
-      background-color: #000;
       border-radius: 40px;
+      margin: 28px 16px 0px 16px;
     }
   }
 
   #add-div{
-    z-index: 30;
-    position: fixed;
-    border-radius: 40px;
-    height: 800px;
-    width: 100%;
-    background-color: #fff;
-    bottom: 0px;
+    .add-div-mixin();
     animation-name: movein;
     animation-duration: 200ms;
     animation-fill-mode: forwards;
     animation-timing-function: ease-in;
     animation-iteration-count: 1;
-    .add-input{
+    .add-textarea{
       height: 200px;
       width: 100%;
-      background-color: #fff;
       border-radius: 40px;
+      margin: 28px 16px 0px 16px;
     }
   }
 
@@ -180,12 +266,12 @@ export default {
       align-items: bottom ;
       padding:18px 10px 0px 10px;
       > text {
-        font-size: 64px;
+        font-size: 58px;
         color: #959595;
         font-weight: normal;
       }
       #active-title {
-        font-size: 64px;
+        font-size: 58px;
         color: #000 ;
         font-weight: bold ;
       }
@@ -204,7 +290,7 @@ export default {
     right: 68px;
     width: 120px;
     height: 120px;
-    background-color: #ffc100;
+    background-color: @myyellow;
     border-radius: 50%;
     .vertical-div {
       height: 60px;
