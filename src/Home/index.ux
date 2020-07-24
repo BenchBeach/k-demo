@@ -7,31 +7,43 @@
       <text id="{{status === 'count'? 'active-title' : '' }}" @click="changePage('count')">统计</text>
     </div>
     <list>
-      <list-item for="listData" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)">
-        <text class="list-text">{{$item}}</text>
+      <list-item for="listData" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
+        <text class="list-text">{{$item.msg}}</text>
+        <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
       </list-item>
     </list>
-    <div class="add-button" @click="showHint">
+    <div class="add-button" @click="addNewToDo">
       <div class="vertical-div"></div>
        <div class="horizontal-div"></div>
     </div>
     <div id="{{filterId}}" if="filterShow" @click="handleCancel">
     </div>
     <div id="{{addDivId}}" if="filterShow">
-        <textarea id="textarea" onchange="textareaChange" class="add-textarea" placeholder="输入待办事项" maxlength=50>
+        <textarea onchange="textareaChange" class="add-textarea" placeholder="输入待办事项" maxlength=50>
         {{newToDo}}
         </textarea>
         <div class="button-container">
-          <div></div>
+          <div class="line-div"></div>
           <div class="bottom-button-container">
             <div class="finish-button" @click="handleFinish">
               <text>完成</text>
             </div>
-            <div class="cancel-button" @click="handleToast('长按放弃添加')" @longpress="handleForgive()">
+            <div class="cancel-button" @click="handleToast('长按放弃')" @longpress="handleForgive()">
               <text>放弃</text>
             </div>
           </div>
         </div>
+    </div>
+    <div id="{{statusDivId}}" if="deleteFlag">
+      <div class="status-div-fir-div">
+        <div if="status!='todo'" @click="changeStatus(1)"><text>移至待办</text></div>
+        <div if="status!='doing'" @click="changeStatus(2)"><text>移至在办</text></div>
+        <div if="status!='done'" @click="changeStatus(3)"><text>移至已办</text></div>
+      </div>
+      <div class="status-div-sec-div">
+        <div class="status-div-sec-div-fir" @click="handleDelete"><text>删除</text></div>
+        <div class="status-div-sec-div-sec" @click="handleCancelStatus"><text>取消</text></div>
+      </div>
     </div>
   </div>
 </template>
@@ -39,17 +51,91 @@
 <script>
 import router from '@system.router'
 import prompt from '@system.prompt'
+import storage from '@system.storage'
 
 export default {
   private: {
-    listData:['啊啊啊啊啊啊啊啊啊啊啊',2,3,4],
-    status:'todo',                //
-    filterShow:false,
-    addDivId:'add-div',
-    filterId:'filter',
-    newToDo:'',
-    reWriteFlag:false,
-    reWriteId:0,
+    listData:[],
+    status:'todo',                          //menu状态
+    filterShow:false,                       //遮罩和弹窗开关控制
+    addDivId:'add-div',                     //弹窗动画控制
+    filterId:'filter',                      //弹窗动画控制
+    newToDo:'',                             //弹窗input
+    reWriteFlag:false,                      //添加或修改flag
+    reWriteId:0,                            //修改list index
+    //listItemClass:'list-item'               //修改点击动画控制
+    deleteFlag:false,                         //删除修改flag
+    statusDivId:'status-div'                //修改statusdiv动画
+  },
+  //lifecycle hooks
+  
+  onInit() {
+    this.$on('reNewStorage',this.handleReNewStorage)
+    let that=this
+    storage.get({
+      key: 'listData',
+      success: function(data) {
+        if(data!=''){
+          that.handleToast('读取成功')
+          data=JSON.parse(data)
+          that.listData=data
+        }else{
+          that.listData=[]
+          that.handleToast('存储为空')
+        }
+      },
+      fail: function() {
+        that.handleToast(`错误！`)
+      }
+    })
+  },
+
+  //methods
+
+  changeStatus(status){
+    this.listData.forEach((ele)=>{
+      if(ele.ckecked){
+        ele.status=status
+      }
+    })
+    this.handleCancelStatus()
+    this.$emit('reNewStorage',{})
+  },
+  handleDelete(){
+    this.listData=this.listData.filter((ele)=>{
+      return !ele.checked
+    })
+    this.handleCancelStatus()
+    this.$emit('reNewStorage',{})
+  },
+  handleCancelStatus(){
+    this.statusDivId='status-div-out'
+    this.listData.forEach((ele)=>{
+      ele.checked=false
+    })
+    setTimeout(()=>{
+      this.statusDivId='status-div'
+      this.deleteFlag=false
+    },196)
+  },
+  handleChoose(id){
+    this.listData[id].checked=!this.listData[id].checked
+  },
+  openDelete(){
+    this.deleteFlag=true
+  },
+  handleReNewStorage(){
+    let that=this
+    storage.set({
+      key: 'listData',
+      value:JSON.stringify( this.listData ),
+      success: function() {
+        that.handleToast('更新成功')
+      },
+      fail: function(data,code) {
+        that.handleToast(`错误！${code}`)
+      }
+    })
   },
   routeDetail () {
     router.push ({
@@ -59,7 +145,8 @@ export default {
   onMenuPress() {
     this.$app.$def.showMenu()
   },
-  showHint () {
+  addNewToDo () {
+    //this.newToDo=''
     this.filterShow=!this.filterShow
     //prompt.showToast({ message: '123' })
   },
@@ -69,6 +156,10 @@ export default {
   handleCancel(){
     this.addDivId='add-div-out'
     this.filterId='filter-out'
+    if(this.reWriteFlag){
+      this.newToDo=''
+    }
+    this.reWriteFlag=false
     setTimeout(()=>{
       this.filterShow=false
       this.addDivId='add-div'
@@ -83,27 +174,42 @@ export default {
   },
   handleFinish(){
     if(!this.reWriteFlag){
-      this.listData.unshift(this.newToDo)
+      this.listData.unshift({
+        msg:this.newToDo,
+        ckecked:false,
+        status:1
+      })
       this.newToDo=''
       this.handleCancel()
-      this.handleToast('123')
     }else{
       this.reWriteFlag=false
-      this.listData.splice(this.reWriteId,1,this.newToDo)
+      this.listData.splice(this.reWriteId,1,{
+        msg:this.newToDo,
+        ckecked:false,
+        status:1
+      })
       this.newToDo=''
       this.handleCancel()
     }
+    this.$emit('reNewStorage',{})
   },
   handleForgive(){
     this.newToDo=''
     this.handleCancel()
   },
   handleReWrite(idx){
-    this.reWriteId=idx
-    this.newToDo=this.listData[idx]
-    this.reWriteFlag=true
-    this.filterShow=true
+    if(!this.deleteFlag){
+      this.reWriteId=idx
+      this.newToDo=this.listData[idx].msg
+      this.reWriteFlag=true
+      //this.listItemClass='list-item-click'
+      setTimeout(()=>{
+        //this.listItemClass='list-item'
+        this.filterShow=true
+      },200)
+    }
   }
+
 }
 </script>
 
@@ -111,6 +217,7 @@ export default {
 
   @myyellow:#ffc100;
   @mygray:#e9e9e9;
+  @bggray:#f7f7f7;
 
   .add-div-mixin() {
     z-index: 30;
@@ -125,6 +232,21 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 0px 18px 0px 18px;
+  }
+
+  .status-div-mixin() {
+    z-index: 30;
+    position: fixed;
+    border-radius: 40px;
+    height: 320px;
+    width: 100%;
+    background-color: #fff;
+    bottom: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 68px 48px 68px 48px;
   }
 
   @keyframes filterout{
@@ -154,6 +276,182 @@ export default {
     }
   }
 
+  /*
+
+  @keyframes clickitem {
+    0% {
+      background-color: #fff;
+      width: 100%;
+      height: 132px;
+    }
+    50% {
+      background-color: #e9e9e9;
+      width: 90%;
+      height: 120px;
+    }
+    100% {
+      background-color: #fff;
+      width: 100%;
+      height: 132px;
+    }
+  }
+
+  .list-item-click{
+    .list-item();
+    animation-name: clickitem;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+  }
+
+  */
+
+  #status-div{
+    .status-div-mixin();
+    animation-name: movein;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+    > div{
+      width: 100%;
+      height: 72px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding:0px 46px 0px 46px;
+    }
+    .status-div-fir-div {
+      > div {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: @myyellow;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: 800;
+          color: rgb(50, 50, 50);
+        }
+      }
+    }
+    .status-div-sec-div {
+      > .status-div-sec-div-fir {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: #8b0000;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: 800;
+          color: #fff;
+        }
+      }
+      > .status-div-sec-div-sec {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: rgb(160, 160, 160);
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: 800;
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  #status-div-out{
+    .status-div-mixin();
+    animation-name: moveout;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+    > div{
+      width: 100%;
+      height: 72px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding:0px 46px 0px 46px;
+    }
+    .status-div-fir-div {
+      > div {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: @myyellow;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: bold;
+          color: rgb(50, 50, 50);
+        }
+      }
+    }
+    .status-div-sec-div {
+      > .status-div-sec-div-fir {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: #8b0000;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 38px;
+          font-weight: bold;
+          color: #fff;
+        }
+      }
+      > .status-div-sec-div-sec {
+        width: 248px;
+        height: 72px;
+        border-radius: 38px;
+        background-color: rgb(160, 160, 160);
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 38px;
+          font-weight: bold;
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  .delete-checkbox{
+    width: 84px;
+    color: @myyellow;
+    background-color: #fff;
+  }
+
+  .delete-checkbox:ckecked{
+    color: @myyellow;
+  }
+
+  .line-div{
+    width: 726px;
+    height: 2px;
+    background-color: @mygray;
+    border-radius: 1px;
+  }
+
   .bottom-button-container{
     display: flex;
     flex-direction: row;
@@ -161,17 +459,17 @@ export default {
     align-items: center;
     width: 100%;
     .cancel-button {
-    height: 72px;
-    width: 160px;
-    background-color: @mygray;
-    border-radius: 36px;
-    >text {
+      height: 72px;
       width: 160px;
-      text-align: center;
-      font-size: 26px;
-      font-weight: bold;
-      color: red;
-    }
+      background-color: @mygray;
+      border-radius: 36px;
+      >text {
+        width: 160px;
+        text-align: center;
+        font-size: 26px;
+        font-weight: bold;
+        color: red;
+      }
     }
   }
 
@@ -190,7 +488,7 @@ export default {
   }
 
   .button-container{
-    height: 670px;
+    height: 720px;
     width: 100%;
     background-color: #fff;
     display: flex;
@@ -261,11 +559,19 @@ export default {
   }
 
   .list-item{
-    height: 132px;
+    height: 162px;
     background-color: #fff;
-    border-radius: 24px;
-    margin: 8px 18px 8px 18px;
+    border-radius: 34px;
+    margin: 12px 18px 12px 18px;
     padding: 0px 12px 0px 18px;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items:center ;
+    > text{
+      width: 90%;
+    }
   }
 
   .home-page {
@@ -273,7 +579,7 @@ export default {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #f7f7f7;
+    background-color: @bggray;
     .home-header {
       width: 750px;
       height: 140px;

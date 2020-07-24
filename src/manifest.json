@@ -18,6 +18,9 @@
     },
     {
       "name": "system.shortcut"
+    },
+    {
+      "name": "system.storage"
     }
   ],
   "permissions": [
