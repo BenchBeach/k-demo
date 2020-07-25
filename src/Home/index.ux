@@ -8,22 +8,29 @@
     </div>
     <list>
       <list-item for="listData" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
+        <text class="list-ddl-text">{{$item.ddl.h+':'+$item.ddl.m}}</text>
         <text class="list-text">{{$item.msg}}</text>
         <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
       </list-item>
     </list>
     <div class="add-button" @click="addNewToDo">
       <div class="vertical-div"></div>
-       <div class="horizontal-div"></div>
+      <div class="horizontal-div"></div>
     </div>
     <div id="{{filterId}}" if="filterShow" @click="handleCancel">
     </div>
     <div id="{{addDivId}}" if="filterShow">
-        <textarea onchange="textareaChange" class="add-textarea" placeholder="输入待办事项" maxlength=50>
+        <textarea @change="textareaChange" class="add-textarea" placeholder="输入待办事项" maxlength=40>
         {{newToDo}}
         </textarea>
         <div class="button-container">
           <div class="line-div"></div>
+          <div class="time-picker-container">
+            <div>
+            <text class="time-text">{{ddlText||"未设置"}}</text><text class="label-text">     时提醒</text>
+            </div>
+            <picker type="time" class="time-picker" value="设置" @change="handleTimePick" @cancel="handleToast('请选择提醒时间')"></picker>
+            </div>
           <div class="bottom-button-container">
             <div class="finish-button" @click="handleFinish">
               <text>完成</text>
@@ -49,7 +56,7 @@
 </template>
 
 <script>
-import router from '@system.router'
+//import router from '@system.router'
 import prompt from '@system.prompt'
 import storage from '@system.storage'
 
@@ -65,12 +72,15 @@ export default {
     reWriteId:0,                            //修改list index
     //listItemClass:'list-item'               //修改点击动画控制
     deleteFlag:false,                         //删除修改flag
-    statusDivId:'status-div'                //修改statusdiv动画
+    statusDivId:'status-div',                //修改statusdiv动画
+    ddl:{},                                  //提醒时间
+    //ddlText:'',                               //显示时间
   },
+
   //lifecycle hooks
   
   onInit() {
-    this.$on('reNewStorage',this.handleReNewStorage)
+    this.$on('reNewStorage',this.handleReNewStorage)         //订阅更新storage
     let that=this
     storage.get({
       key: 'listData',
@@ -89,9 +99,29 @@ export default {
       }
     })
   },
+  onMenuPress() {
+    this.$app.$def.showMenu()
+  },
+
+  // computed
+
+  computed: {
+    ddlText() {
+      if(JSON.stringify(this.ddl)!='{}'){
+        return `${this.ddl.h}:${this.ddl.m}`
+      }else{
+        return ''
+      }
+    }
+  },
 
   //methods
-
+  handleTimePick(e){
+    this.ddl={
+      h:e.hour,
+      m:e.minute
+    }
+  },
   changeStatus(status){
     this.listData.forEach((ele)=>{
       if(ele.ckecked){
@@ -124,9 +154,9 @@ export default {
   openDelete(){
     this.deleteFlag=true
   },
-  handleReNewStorage(){
-    let that=this
-    storage.set({
+  handleReNewStorage(){                                   //更新storage函数
+    let that=this                                         //要是有watch就好了，不用每次更改还要emit一下
+    storage.set({                                         
       key: 'listData',
       value:JSON.stringify( this.listData ),
       success: function() {
@@ -137,15 +167,7 @@ export default {
       }
     })
   },
-  routeDetail () {
-    router.push ({
-      uri: '/DemoDetail'
-    })
-  },
-  onMenuPress() {
-    this.$app.$def.showMenu()
-  },
-  addNewToDo () {
+  addNewToDo () {                                        //添加按钮click函数
     //this.newToDo=''
     this.filterShow=!this.filterShow
     //prompt.showToast({ message: '123' })
@@ -153,11 +175,12 @@ export default {
   changePage(status){
     this.status=status
   },
-  handleCancel(){
+  handleCancel(){                                       //取消添加 （和放弃不一样
     this.addDivId='add-div-out'
     this.filterId='filter-out'
     if(this.reWriteFlag){
       this.newToDo=''
+      this.ddl={}
     }
     this.reWriteFlag=false
     setTimeout(()=>{
@@ -169,32 +192,43 @@ export default {
   textareaChange(e){
     this.newToDo=e.text
   },
-  handleToast(text){
+  handleToast(text){                                   //封装toast，方便调用
     prompt.showToast({ message: text })
   },
-  handleFinish(){
+  handleFinish(){                                      //完成函数
     if(!this.reWriteFlag){
-      this.listData.unshift({
-        msg:this.newToDo,
-        ckecked:false,
-        status:1
-      })
-      this.newToDo=''
-      this.handleCancel()
+      //new
+      if(JSON.stringify(this.ddl)!='{}'){
+        this.listData.unshift({
+          msg:this.newToDo,
+          ckecked:false,
+          status:1,
+          ddl:this.ddl
+        })
+        this.newToDo=''
+        this.ddl={}
+        this.handleCancel()
+      }else{
+        this.handleToast('请设置提醒时间')
+      }
     }else{
+      //reWrite
       this.reWriteFlag=false
       this.listData.splice(this.reWriteId,1,{
         msg:this.newToDo,
         ckecked:false,
-        status:1
+        status:1,
+        ddl:this.ddl
       })
       this.newToDo=''
+      this.ddl={}
       this.handleCancel()
     }
     this.$emit('reNewStorage',{})
   },
   handleForgive(){
     this.newToDo=''
+    this.ddl={}
     this.handleCancel()
   },
   handleReWrite(idx){
@@ -202,6 +236,8 @@ export default {
       this.reWriteId=idx
       this.newToDo=this.listData[idx].msg
       this.reWriteFlag=true
+      this.ddl=this.listData[idx].ddl
+      this.handleToast(123)
       //this.listItemClass='list-item-click'
       setTimeout(()=>{
         //this.listItemClass='list-item'
@@ -306,6 +342,41 @@ export default {
   }
 
   */
+
+  .time-picker-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    .time-picker{
+      background-color: @myyellow;
+      height: 72px;
+      width: 160px;
+      color: #fff;
+      text-align: center;
+      border-radius: 36px;
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .label-text {
+      width: 200px;
+      height: 72px;
+      text-align: left;
+      height: 72px;
+      color: #a9a9a9;
+      font-size: 36px;
+      font-weight: bold;
+    }
+    .time-text{
+      width: 200px;
+      font-size: 46px;
+      font-weight: bold;
+      color: @myyellow;
+      text-align: right;
+    }
+  }
+  
 
   #status-div{
     .status-div-mixin();
@@ -437,12 +508,8 @@ export default {
 
   .delete-checkbox{
     width: 84px;
-    color: @myyellow;
+    background-color: @myyellow;
     background-color: #fff;
-  }
-
-  .delete-checkbox:ckecked{
-    color: @myyellow;
   }
 
   .line-div{
@@ -567,10 +634,21 @@ export default {
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: left;
     align-items:center ;
     > text{
-      width: 90%;
+      width: 69%;
+    }
+    > .list-ddl-text{
+      width: 120px;
+      text-align: center;
+      color: @myyellow;
+      font-weight: bold;
+      font-size: 36px;
+      border-right-width: 2px;
+      border-right-color: #a9a9a9;
+      margin-right: 8px;
+      text-align: left;
     }
   }
 
