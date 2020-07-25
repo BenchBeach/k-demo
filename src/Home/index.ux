@@ -8,7 +8,10 @@
     </div>
     <list>
       <list-item for="listData" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
-        <text class="list-ddl-text">{{$item.ddl.h+':'+$item.ddl.m}}</text>
+        <div class="list-ddl-container">
+          <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
+          <text class="list-ddl-text">{{$item.ddl.time.h+':'+$item.ddl.time.m}}</text>
+        </div>
         <text class="list-text">{{$item.msg}}</text>
         <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
       </list-item>
@@ -25,12 +28,16 @@
         </textarea>
         <div class="button-container">
           <div class="line-div"></div>
-          <div class="time-picker-container">
-            <div>
-            <text class="time-text">{{ddlText||"未设置"}}</text><text class="label-text">     时提醒</text>
+          <div class="time-container">
+            <div class="time-label-container">
+              <text class="time-text">{{ddlTextDate||"未设置"}}|{{ddlTextTime||"未设置"}}</text>
+              <text class="label-text">     时提醒</text>
             </div>
-            <picker type="time" class="time-picker" value="设置" @change="handleTimePick" @cancel="handleToast('请选择提醒时间')"></picker>
+            <div class="picker-container">
+              <picker type="date" class="time-picker" value="设置日期" @change="handleDatePick" @cancel="handleToast('请选择日期')"></picker>
+              <picker type="time" class="time-picker" value="设置时刻" @change="handleTimePick" @cancel="handleToast('请选择时刻')"></picker>
             </div>
+          </div>
           <div class="bottom-button-container">
             <div class="finish-button" @click="handleFinish">
               <text>完成</text>
@@ -63,18 +70,21 @@ import storage from '@system.storage'
 export default {
   private: {
     listData:[],
-    status:'todo',                          //menu状态
-    filterShow:false,                       //遮罩和弹窗开关控制
-    addDivId:'add-div',                     //弹窗动画控制
-    filterId:'filter',                      //弹窗动画控制
-    newToDo:'',                             //弹窗input
-    reWriteFlag:false,                      //添加或修改flag
-    reWriteId:0,                            //修改list index
+    status:'todo',                            //menu状态
+    filterShow:false,                         //遮罩和弹窗开关控制
+    addDivId:'add-div',                       //弹窗动画控制
+    filterId:'filter',                        //弹窗动画控制
+    newToDo:'',                               //弹窗input
+    reWriteFlag:false,                        //添加或修改flag
+    reWriteId:0,                              //修改list index
     //listItemClass:'list-item'               //修改点击动画控制
     deleteFlag:false,                         //删除修改flag
-    statusDivId:'status-div',                //修改statusdiv动画
-    ddl:{},                                  //提醒时间
-    //ddlText:'',                               //显示时间
+    statusDivId:'status-div',                 //修改statusdiv动画
+    ddl:{                                     //提醒时间
+      time:{},
+      date:{},
+    },
+    ddlClone:{}                               //ddl 深拷贝         
   },
 
   //lifecycle hooks
@@ -106,9 +116,16 @@ export default {
   // computed
 
   computed: {
-    ddlText() {
-      if(JSON.stringify(this.ddl)!='{}'){
-        return `${this.ddl.h}:${this.ddl.m}`
+    ddlTextTime() {
+      if(JSON.stringify(this.ddl.time)!='{}'){
+        return `${this.ddl.time.h}:${this.ddl.time.m}`
+      }else{
+        return ''
+      }
+    },
+    ddlTextDate() {
+      if(JSON.stringify(this.ddl.date)!='{}'){
+        return `${this.ddl.date.y}-${this.ddl.date.mon}-${this.ddl.date.d}`
       }else{
         return ''
       }
@@ -116,8 +133,15 @@ export default {
   },
 
   //methods
+  handleDatePick(e){
+    this.ddl.date={
+      y:e.year,
+      mon:e.month,
+      d:e.day
+    }
+  },
   handleTimePick(e){
-    this.ddl={
+    this.ddl.time={
       h:e.hour,
       m:e.minute
     }
@@ -180,7 +204,10 @@ export default {
     this.filterId='filter-out'
     if(this.reWriteFlag){
       this.newToDo=''
-      this.ddl={}
+      this.ddl={
+        time:{},
+        date:{},
+      }
     }
     this.reWriteFlag=false
     setTimeout(()=>{
@@ -198,7 +225,7 @@ export default {
   handleFinish(){                                      //完成函数
     if(!this.reWriteFlag){
       //new
-      if(JSON.stringify(this.ddl)!='{}'){
+      if(JSON.stringify(this.ddl.time)!='{}'&&JSON.stringify(this.ddl.date)!='{}'){
         this.listData.unshift({
           msg:this.newToDo,
           ckecked:false,
@@ -206,7 +233,10 @@ export default {
           ddl:this.ddl
         })
         this.newToDo=''
-        this.ddl={}
+        this.ddl={
+          time:{},
+          date:{},
+        }
         this.handleCancel()
       }else{
         this.handleToast('请设置提醒时间')
@@ -221,14 +251,20 @@ export default {
         ddl:this.ddl
       })
       this.newToDo=''
-      this.ddl={}
+      this.ddl={
+        time:{},
+        date:{},
+      }
       this.handleCancel()
     }
     this.$emit('reNewStorage',{})
   },
   handleForgive(){
     this.newToDo=''
-    this.ddl={}
+    this.ddl={
+      time:{},
+      date:{},
+    }
     this.handleCancel()
   },
   handleReWrite(idx){
@@ -236,8 +272,7 @@ export default {
       this.reWriteId=idx
       this.newToDo=this.listData[idx].msg
       this.reWriteFlag=true
-      this.ddl=this.listData[idx].ddl
-      this.handleToast(123)
+      this.ddl={...this.listData[idx].ddl}            
       //this.listItemClass='list-item-click'
       setTimeout(()=>{
         //this.listItemClass='list-item'
@@ -343,7 +378,41 @@ export default {
 
   */
 
-  .time-picker-container{
+  .time-label-container{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding:0px 36px 0px 36px;
+    align-items: center;
+    width: 100%;
+    .label-text {
+      width: 20%;
+      height: 72px;
+      text-align: right;
+      height: 72px;
+      color: #a9a9a9;
+      font-size: 36px;
+      font-weight: bold;
+    }
+    .time-text{
+      width: 80%;
+      font-size: 42px;
+      font-weight: bold;
+      color: @myyellow;
+      text-align: left;
+    }
+  }
+
+  .time-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+  }
+
+  .picker-container{
+    margin-top: 36px;
     display: flex;
     flex-direction: row;
     justify-content: space-around;
@@ -352,28 +421,12 @@ export default {
     .time-picker{
       background-color: @myyellow;
       height: 72px;
-      width: 160px;
+      width: 280px;
       color: #fff;
       text-align: center;
       border-radius: 36px;
-      font-size: 26px;
-      font-weight: bold;
-    }
-    .label-text {
-      width: 200px;
-      height: 72px;
-      text-align: left;
-      height: 72px;
-      color: #a9a9a9;
       font-size: 36px;
       font-weight: bold;
-    }
-    .time-text{
-      width: 200px;
-      font-size: 46px;
-      font-weight: bold;
-      color: @myyellow;
-      text-align: right;
     }
   }
   
@@ -639,18 +692,24 @@ export default {
     > text{
       width: 69%;
     }
-    > .list-ddl-text{
+  }
+
+      .list-ddl-container{
       width: 120px;
-      text-align: center;
-      color: @myyellow;
-      font-weight: bold;
-      font-size: 36px;
       border-right-width: 2px;
       border-right-color: #a9a9a9;
       margin-right: 8px;
       text-align: left;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      > text{
+        text-align: center;
+        color: @myyellow;
+        font-weight: bold;
+        font-size: 32px;
+      }
     }
-  }
 
   .home-page {
     display: flex;
