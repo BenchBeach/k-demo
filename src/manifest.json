@@ -21,6 +21,8 @@
     },
     {
       "name": "system.storage"
+    },{ 
+      "name": "system.calendar" 
     }
   ],
   "permissions": [

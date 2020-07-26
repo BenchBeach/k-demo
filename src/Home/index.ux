@@ -10,11 +10,12 @@
       <list-item for="listData" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
         <div class="list-ddl-container">
           <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
-          <text class="list-ddl-text">{{$item.ddl.time.h+':'+$item.ddl.time.m}}</text>
+          <text class="list-ddl-text">{{$item.ddl.time.h.toString().padStart(2,'0')+':'+$item.ddl.time.m.toString().padStart(2,'0')}}</text>
         </div>
         <text class="list-text">{{$item.msg}}</text>
         <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
       </list-item>
+      <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
     </list>
     <div class="add-button" @click="addNewToDo">
       <div class="vertical-div"></div>
@@ -66,6 +67,7 @@
 //import router from '@system.router'
 import prompt from '@system.prompt'
 import storage from '@system.storage'
+import calendar from '@system.calendar' 
 
 export default {
   private: {
@@ -84,7 +86,7 @@ export default {
       time:{},
       date:{},
     },
-    ddlClone:{}                               //ddl 深拷贝         
+    timeStamp:0,
   },
 
   //lifecycle hooks
@@ -136,7 +138,7 @@ export default {
   handleDatePick(e){
     this.ddl.date={
       y:e.year,
-      mon:e.month,
+      mon:e.month+1,
       d:e.day
     }
   },
@@ -232,6 +234,22 @@ export default {
           status:1,
           ddl:this.ddl
         })
+        let that=this
+        let ddlDate=new Date(`${this.ddl.date.mon} ${this.ddl.date.d},${this.ddl.date.y} ${this.ddl.time.h}:${this.ddl.time.m}:00`)
+        this.timeStamp=ddlDate.getTime()
+        calendar.insert({
+          title: that.newToDo,
+          description:that.newToDo,
+          startDate: that.timeStamp,
+          endDate: that.timeStamp+60000,
+          remindMinutes: [1],
+          success: function() {
+            that.handleToast('添加日历成功')
+          },
+          fail: function(){
+            that.handleToast('添加日历失败')
+          }
+        })
         this.newToDo=''
         this.ddl={
           time:{},
@@ -249,6 +267,22 @@ export default {
         ckecked:false,
         status:1,
         ddl:this.ddl
+      })
+      let that=this
+      let ddlDate=new Date(`${this.ddl.date.mon} ${this.ddl.date.d},${this.ddl.date.y} ${this.ddl.time.h}:${this.ddl.time.m}:00`)
+      this.timeStamp=ddlDate.getTime()
+      calendar.insert({
+        title: that.newToDo,
+        description:that.newToDo,
+        startDate: that.timeStamp,
+        endDate: that.timeStamp+60000,
+        remindMinutes: [1],
+        success: function() {
+          that.handleToast('修改日历成功，请手动删除旧日历事项')
+        },
+        fail: function(){
+          that.handleToast('修改日历失败')
+        }
       })
       this.newToDo=''
       this.ddl={
