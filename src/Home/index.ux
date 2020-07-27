@@ -6,17 +6,41 @@
       <text id="{{status === 'done'? 'active-title' : '' }}" @click="changePage('done')">已办</text>
       <text id="{{status === 'count'? 'active-title' : '' }}" @click="changePage('count')">统计</text>
     </div>
-    <list>
-      <list-item for="listData" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
-        <div class="list-ddl-container">
-          <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
-          <text class="list-ddl-text">{{$item.ddl.time.h.toString().padStart(2,'0')+':'+$item.ddl.time.m.toString().padStart(2,'0')}}</text>
-        </div>
-        <text class="list-text">{{$item.msg}}</text>
-        <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
-      </list-item>
-      <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
-    </list>
+    <swiper id="swiper" class="swiper" autoplay="false" indicator="false" duration="600" previousmargin="{{marginValue}}" loop="false" @change="handleSwiperChange">
+      <list>
+        <list-item for="listData" if="{{$item.status==1}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
+          <div class="list-ddl-container">
+            <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
+            <text class="list-ddl-text">{{$item.ddl.time.h.toString().padStart(2,'0')+':'+$item.ddl.time.m.toString().padStart(2,'0')}}</text>
+          </div>
+          <text class="list-text">{{$item.msg}}</text>
+          <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
+        </list-item>
+        <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
+      </list>
+      <list>
+        <list-item for="listData" if="{{$item.status==2}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
+          <div class="list-ddl-container">
+            <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
+            <text class="list-ddl-text">{{$item.ddl.time.h.toString().padStart(2,'0')+':'+$item.ddl.time.m.toString().padStart(2,'0')}}</text>
+          </div>
+          <text class="list-text">{{$item.msg}}</text>
+          <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
+        </list-item>
+        <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
+      </list>
+      <list>
+        <list-item for="listData" if="{{$item.status==3}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
+          <div class="list-ddl-container">
+            <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
+            <text class="list-ddl-text">{{$item.ddl.time.h.toString().padStart(2,'0')+':'+$item.ddl.time.m.toString().padStart(2,'0')}}</text>
+          </div>
+          <text class="list-text">{{$item.msg}}</text>
+          <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
+        </list-item>
+        <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
+      </list>
+    </swiper>
     <div class="add-button" @click="addNewToDo">
       <div class="vertical-div"></div>
       <div class="horizontal-div"></div>
@@ -93,7 +117,7 @@ export default {
     },
     timeStamp:0,                              //日历时间戳
     asrButtonId:'asr-button',                  //修改语音识别动画
-    asrText:''                                 //asr语音识别出来的text
+    asrText:'',                                 //asr语音识别出来的text
   },
 
   //lifecycle hooks
@@ -165,10 +189,29 @@ export default {
       }else{
         return ''
       }
+    },
+    toDoListData(){
+      return this.listData.filter((ele)=>{
+        return ele.status==1
+      })
     }
   },
 
   //methods
+
+  handleSwiperChange(e){
+    switch(e.index){
+      case 0 : 
+        this.status='todo'
+        break
+      case 1 : 
+        this.status='doing'
+        break
+      case 2 : 
+        this.status='done'
+        break
+    }
+  },
   asrStart() {
     this.asrButtonId='asr-button-active'
     this.asrText=''
@@ -209,7 +252,7 @@ export default {
   },
   changeStatus(status){
     this.listData.forEach((ele)=>{
-      if(ele.ckecked){
+      if(ele.checked){
         ele.status=status
       }
     })
@@ -259,6 +302,17 @@ export default {
   },
   changePage(status){
     this.status=status
+    switch(status){
+      case 'todo':
+        this.$element('swiper').swipeTo({index:0})
+        break
+      case 'doing':
+        this.$element('swiper').swipeTo({index:1})
+        break
+      case 'done':
+        this.$element('swiper').swipeTo({index:2})
+        break
+    }
   },
   handleCancel(){                                       //取消添加 （和放弃不一样
     this.addDivId='add-div-out'
@@ -483,6 +537,11 @@ export default {
   }
 
   */
+
+  .swiper{
+    flex-direction: column;
+    flex-grow: 1;
+  }
 
   #asr-button-active{
     animation-name: extend;
@@ -834,7 +893,7 @@ export default {
     width: 100%;
     display: flex;
     flex-direction: row;
-    justify-content: left;
+    justify-content: flex-start;
     align-items:center ;
     > text{
       width: 69%;
