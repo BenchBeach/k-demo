@@ -23,6 +23,8 @@
       "name": "system.storage"
     },{ 
       "name": "system.calendar" 
+    },{ 
+      "name": "service.asr" 
     }
   ],
   "permissions": [

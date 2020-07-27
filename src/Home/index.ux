@@ -29,6 +29,9 @@
         </textarea>
         <div class="button-container">
           <div class="line-div"></div>
+          <div class="asr-container">
+            <div id="{{asrButtonId}}" @touchstart="asrStart" @touchend="asrStop" @touchcancel="asrStop"><text>{{asrButtonId=='asr-button'?'长按语音输入':'输入中...'}}</text></div>
+          </div>
           <div class="time-container">
             <div class="time-label-container">
               <text class="time-text">{{ddlTextDate||"未设置"}}|{{ddlTextTime||"未设置"}}</text>
@@ -64,10 +67,12 @@
 </template>
 
 <script>
+/* eslint-disable indent */
 //import router from '@system.router'
 import prompt from '@system.prompt'
 import storage from '@system.storage'
-import calendar from '@system.calendar' 
+import calendar from '@system.calendar'
+import asr from '@service.asr' 
 
 export default {
   private: {
@@ -86,7 +91,9 @@ export default {
       time:{},
       date:{},
     },
-    timeStamp:0,
+    timeStamp:0,                              //日历时间戳
+    asrButtonId:'asr-button',                  //修改语音识别动画
+    asrText:''                                 //asr语音识别出来的text
   },
 
   //lifecycle hooks
@@ -110,7 +117,34 @@ export default {
         that.handleToast(`错误！`)
       }
     })
+    // asr 模块初始化
+    asr.init({
+      success: function() {
+        
+      },
+      fail: function(data, code) {
+        that.handleToast(`asr初始化失败${code}:${data}`)
+      }
+    })
+    asr.onpartialresult = ({ result }) => {
+      this.asrText = `${result}`
+    }
+    asr.oncompleteresult = () => {
+      //this.asrText = `${result.match(/\[(.*)\]/)[1]}`
+    }
+    asr.onerror = (error) => {
+      that.handleToast(error)
+    }
   },
+  onDestroy() {
+    asr.close({
+      success: function() {   
+      },
+      fail: function() {
+      }
+    })
+  },
+
   onMenuPress() {
     this.$app.$def.showMenu()
   },
@@ -135,6 +169,31 @@ export default {
   },
 
   //methods
+  asrStart() {
+    this.asrButtonId='asr-button-active'
+    this.asrText=''
+    let that = this
+    asr.start({
+      success: function() {
+        
+      },
+      fail: function(data, code) {
+        that.handleToast(`asr启动失败${code}:${data}`)
+      }
+    })
+  },
+  asrStop() {
+    this.asrButtonId='asr-button'
+    let that = this
+    this.newToDo=this.newToDo+this.asrText
+    asr.stop({
+      success: function() {
+      },
+      fail: function(data, code) {
+         that.handleToast(`asr停止失败${code}:${data}`)
+      }
+    })
+  },
   handleDatePick(e){
     this.ddl.date={
       y:e.year,
@@ -226,7 +285,7 @@ export default {
   },
   handleFinish(){                                      //完成函数
     if(!this.reWriteFlag){
-      //new
+      //new ToDo
       if(JSON.stringify(this.ddl.time)!='{}'&&JSON.stringify(this.ddl.date)!='{}'){
         this.listData.unshift({
           msg:this.newToDo,
@@ -260,7 +319,7 @@ export default {
         this.handleToast('请设置提醒时间')
       }
     }else{
-      //reWrite
+      //reWrite ToDo
       this.reWriteFlag=false
       this.listData.splice(this.reWriteId,1,{
         msg:this.newToDo,
@@ -328,7 +387,7 @@ export default {
     z-index: 30;
     position: fixed;
     border-radius: 40px;
-    height: 980px;
+    height: 900px;
     width: 100%;
     background-color: #fff;
     bottom: 0px;
@@ -381,6 +440,19 @@ export default {
     }
   }
 
+  @keyframes extend {
+    0%{
+      width: 420px;
+      height: 72px;
+      border-radius: 36px;
+    }
+    100%{
+      width: 460px;
+      height: 92px;
+      border-radius: 46px;
+    }
+  }
+
   /*
 
   @keyframes clickitem {
@@ -412,6 +484,36 @@ export default {
 
   */
 
+  #asr-button-active{
+    animation-name: extend;
+    animation-duration: 100ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: 1;
+    background-color: @myyellow;
+    > text{
+      width: 100%;
+      color: #fff;
+      text-align: center;
+      font-size: 42px;
+      font-weight: bold;
+    }
+  }
+
+  #asr-button{
+    width: 420px;
+    height: 72px;
+    background-color: @myyellow;
+    border-radius: 36px;
+    > text{
+      width: 100%;
+      color: #fff;
+      text-align: center;
+      font-size: 42px;
+      font-weight: bold;
+    }
+  }
+
   .time-label-container{
     display: flex;
     flex-direction: row;
@@ -427,6 +529,7 @@ export default {
       color: #a9a9a9;
       font-size: 36px;
       font-weight: bold;
+      margin-bottom: 36px;
     }
     .time-text{
       width: 80%;
@@ -434,6 +537,7 @@ export default {
       font-weight: bold;
       color: @myyellow;
       text-align: left;
+      margin-bottom: 36px;
     }
   }
 
@@ -443,6 +547,7 @@ export default {
     justify-content: space-around;
     align-items: center;
     width: 100%;
+    margin-bottom: 58px;
   }
 
   .picker-container{
@@ -652,6 +757,14 @@ export default {
     padding: 10px 20px 0px 20px;
     margin-bottom: 40px;
     text-align: center;
+    .asr-container{
+      width: 100%;
+      height: 92px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
   }
 
   .list-text {
