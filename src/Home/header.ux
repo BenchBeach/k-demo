@@ -1,0 +1,44 @@
+<template>
+    <div class="home-header">
+      <text id="{{status === 'todo'? 'active-title' : '' }}" @click="changePage('todo')">待办</text>
+      <text id="{{status === 'doing'? 'active-title' : '' }}" @click="changePage('doing')">在办</text>
+      <text id="{{status === 'done'? 'active-title' : '' }}" @click="changePage('done')">已办</text>
+      <text id="{{status === 'count'? 'active-title' : '' }}" @click="changePage('count')">统计</text>
+    </div>
+</template>
+
+<script>
+export default {
+  props: ['status'],
+  changePage(text){
+    this.$dispatch('changePage',{text})
+  }
+}
+</script>
+
+<style lang="less">
+
+    .home-header {
+      width: 750px;
+      height: 140px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items:center ;
+      padding:18px 10px 0px 10px;
+      > text {
+        font-size: 58px;
+        color: #959595;
+        font-weight: normal;
+      }
+    }
+
+      #active-title {
+        font-size: 58px;
+        color: #000 ;
+        font-weight: bold ;
+      }
+
+</style>
+
+

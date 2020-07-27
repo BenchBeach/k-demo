@@ -1,11 +1,9 @@
+<import name="header" src="./header.ux"></import>
+ 
 <template>
   <div class="home-page">
-    <div class="home-header">
-      <text id="{{status === 'todo'? 'active-title' : '' }}" @click="changePage('todo')">待办</text>
-      <text id="{{status === 'doing'? 'active-title' : '' }}" @click="changePage('doing')">在办</text>
-      <text id="{{status === 'done'? 'active-title' : '' }}" @click="changePage('done')">已办</text>
-      <text id="{{status === 'count'? 'active-title' : '' }}" @click="changePage('count')">统计</text>
-    </div>
+    <header status="{{status}}"></header>
+    
     <swiper id="swiper" class="swiper" autoplay="false" indicator="false" duration="600" previousmargin="{{marginValue}}" loop="false" @change="handleSwiperChange">
       <list>
         <list-item for="listData" if="{{$item.status==1}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
@@ -124,6 +122,7 @@ export default {
   
   onInit() {
     this.$on('reNewStorage',this.handleReNewStorage)         //订阅更新storage
+    this.$on('changePage',this.changePage)                   //header 点击事件
     let that=this
     storage.get({
       key: 'listData',
@@ -300,9 +299,9 @@ export default {
     this.filterShow=!this.filterShow
     //prompt.showToast({ message: '123' })
   },
-  changePage(status){
-    this.status=status
-    switch(status){
+  changePage(evt){
+    this.status=evt.detail.text
+    switch(this.status){
       case 'todo':
         this.$element('swiper').swipeTo({index:0})
         break
@@ -923,25 +922,6 @@ export default {
     justify-content: center;
     align-items: center;
     background-color: @bggray;
-    .home-header {
-      width: 750px;
-      height: 140px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-around;
-      align-items:center ;
-      padding:18px 10px 0px 10px;
-      > text {
-        font-size: 58px;
-        color: #959595;
-        font-weight: normal;
-      }
-      #active-title {
-        font-size: 58px;
-        color: #000 ;
-        font-weight: bold ;
-      }
-    }
   }
 
   .title {
