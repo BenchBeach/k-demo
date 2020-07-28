@@ -1,13 +1,13 @@
 <template>
     <div id="{{statusDivId}}">
       <div class="status-div-fir-div">
-        <div if="status!='todo'" @click="changeStatus(1)"><text>移至待办</text></div>
-        <div if="status!='doing'" @click="changeStatus(2)"><text>移至在办</text></div>
-        <div if="status!='done'" @click="changeStatus(3)"><text>移至已办</text></div>
+        <input type="button" if="status!='todo'" @click="changeStatus(1)" value="移至待办">
+        <input type="button" if="status!='doing'" @click="changeStatus(2)" value="移至在办">
+        <input type="button" if="status!='done'" @click="changeStatus(3)" value="移至已办">
       </div>
       <div class="status-div-sec-div">
-        <div class="status-div-sec-div-fir" @click="handleDelete"><text>删除</text></div>
-        <div class="status-div-sec-div-sec" @click="handleCancelStatus"><text>取消</text></div>
+        <input type="button" class="status-div-sec-div-fir" @click="handleDelete" value="删除">
+        <input type="button" class="status-div-sec-div-sec" @click="handleCancelStatus" value="取消">
       </div>
     </div>
 </template>
@@ -35,7 +35,7 @@ export default {
     z-index: 30;
     position: fixed;
     border-radius: 40px;
-    height: 320px;
+    height: 368px;
     width: 100%;
     background-color: #fff;
     bottom: 0px;
@@ -73,27 +73,23 @@ export default {
     animation-iteration-count: 1;
     > div{
       width: 100%;
-      height: 72px;
+      height: 116px;
       display: flex;
       flex-direction: row;
       justify-content: space-between;
       align-items: center;
-      padding:0px 46px 0px 46px;
+      padding:0px 46px 24px 46px;
     }
     .status-div-fir-div {
-      > div {
+      > input {
         width: 248px;
         height: 72px;
         border-radius: 36px;
         background-color: @myyellow;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: 800;
-          color: rgb(50, 50, 50);
-        }
+        text-align: center;
+        font-size: 36px;
+        font-weight: 800;
+        color: rgb(50, 50, 50);
       }
     }
     .status-div-sec-div {
@@ -102,28 +98,20 @@ export default {
         height: 72px;
         border-radius: 36px;
         background-color: #8b0000;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: 800;
-          color: #fff;
-        }
+        text-align: center;
+        font-size: 36px;
+        font-weight: 800;
+        color: #fff;
       }
       > .status-div-sec-div-sec {
         width: 248px;
         height: 72px;
         border-radius: 36px;
         background-color: rgb(160, 160, 160);
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: 800;
-          color: #fff;
-        }
+        text-align: center;
+        font-size: 36px;
+        font-weight: 800;
+        color: #fff;
       }
     }
   }
@@ -135,7 +123,7 @@ export default {
     animation-fill-mode: forwards;
     animation-timing-function: ease-in;
     animation-iteration-count: 1;
-    > div{
+    > input{
       width: 100%;
       height: 72px;
       display: flex;
@@ -145,19 +133,17 @@ export default {
       padding:0px 46px 0px 46px;
     }
     .status-div-fir-div {
-      > div {
+      > input {
         width: 248px;
         height: 72px;
         border-radius: 36px;
         background-color: @myyellow;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: bold;
-          color: rgb(50, 50, 50);
-        }
+        width: 100%;
+        height: 100%;
+        text-align: center;
+        font-size: 36px;
+        font-weight: bold;
+        color: rgb(50, 50, 50);
       }
     }
     .status-div-sec-div {
@@ -166,28 +152,20 @@ export default {
         height: 72px;
         border-radius: 36px;
         background-color: #8b0000;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 38px;
-          font-weight: bold;
-          color: #fff;
-        }
+        text-align: center;
+        font-size: 38px;
+        font-weight: bold;
+        color: #fff;
       }
       > .status-div-sec-div-sec {
         width: 248px;
         height: 72px;
         border-radius: 38px;
         background-color: rgb(160, 160, 160);
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 38px;
-          font-weight: bold;
-          color: #fff;
-        }
+        text-align: center;
+        font-size: 38px;
+        font-weight: bold;
+        color: #fff;
       }
     }
   }
