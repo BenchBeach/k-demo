@@ -7,7 +7,7 @@
 <template>
   <div class="home-page">
     <header status="{{status}}"></header>
-    <swiper id="swiper" class="swiper" autoplay="false" indicator="false" duration="600" previousmargin="{{marginValue}}" loop="false" @change="handleSwiperChange">
+    <swiper id="swiper" class="swiper" autoplay="false" indicator="false" duration="600" loop="false" @change="handleSwiperChange">
       <list>
         <list-item for="listData" if="{{$item.status==1}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
           <div class="list-ddl-container">
@@ -20,29 +20,29 @@
         <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
       </list>
       <list>
-        <list-item for="listData" if="{{$item.status==2}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
+        <list-item for="listData" if="{{$item.status==2}}" type="listItem" class="list-item" tid="uniqueId" @longpress="openDelete">
           <div class="list-ddl-container">
             <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
             <text class="list-ddl-text">{{$item.ddl.time.h.toString().padStart(2,'0')+':'+$item.ddl.time.m.toString().padStart(2,'0')}}</text>
           </div>
-          <text class="list-text">{{$item.msg}}</text>
+          <text class="list-text doing-text">{{$item.msg}}</text>
           <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
         </list-item>
         <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
       </list>
       <list>
-        <list-item for="listData" if="{{$item.status==3}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
+        <list-item for="listData" if="{{$item.status==3}}" type="listItem" class="list-item" tid="uniqueId" @longpress="openDelete">
           <div class="list-ddl-container">
             <text class="list-ddl-text">{{$item.ddl.date.mon+'-'+$item.ddl.date.d}}</text>
             <text class="list-ddl-text">{{$item.ddl.time.h.toString().padStart(2,'0')+':'+$item.ddl.time.m.toString().padStart(2,'0')}}</text>
           </div>
-          <text class="list-text">{{$item.msg}}</text>
+          <text class="list-text done-text">{{$item.msg}}</text>
           <input type="checkbox" class="delete-checkbox" if="{{deleteFlag}}" @click="handleChoose($idx)"></input>
         </list-item>
         <list-item if="{{deleteFlag}}" style="height: 330px;"></list-item>
       </list>
     </swiper>
-    <div class="add-button" @click="addNewToDo">
+    <div id="{{addButtonId}}" if="addButtonFlag"  @click="addNewToDo">
       <div class="vertical-div"></div>
       <div class="horizontal-div"></div>
     </div>
@@ -111,6 +111,8 @@ export default {
     timeStamp:0,                              //日历时间戳
     asrButtonId:'asr-button',                  //修改语音识别动画
     asrText:'',                                 //asr语音识别出来的text
+    addButtonId:'add-button',                   //添加button动画
+    addButtonFlag:true,
   },
 
   //lifecycle hooks
@@ -204,12 +206,22 @@ export default {
     switch(e.index){
       case 0 : 
         this.status='todo'
+        this.addButtonFlag=true
+        this.addButtonId='add-button-in'
         break
       case 1 : 
         this.status='doing'
+        this.addButtonId='add-button-out'
+        setTimeout(()=>{
+          this.addButtonFlag=false
+        },100)
         break
       case 2 : 
         this.status='done'
+        this.addButtonId='add-button-out'
+        setTimeout(()=>{
+          this.addButtonFlag=false
+        },100)
         break
     }
   },
@@ -304,6 +316,7 @@ export default {
   },
   changePage(evt){
     this.status=evt.detail.text
+    this.addButtonId='add-button-out'
     switch(this.status){
       case 'todo':
         this.$element('swiper').swipeTo({index:0})
@@ -452,20 +465,33 @@ export default {
     padding: 0px 18px 0px 18px;
   }
 
-  .status-div-mixin() {
-    z-index: 30;
+  .add-button-mixin(){
+    z-index: 10;
     position: fixed;
-    border-radius: 40px;
-    height: 320px;
-    width: 100%;
-    background-color: #fff;
-    bottom: 0px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-    padding: 68px 48px 68px 48px;
+    width: 120px;
+    height: 120px;
+    background-color: @myyellow;
+    border-radius: 50%;
+    .vertical-div {
+      height: 60px;
+      width: 8px;
+      background-color: #fff;
+      position: relative;
+      left:56px;
+      border-radius: 4px;
+      top:30px;
+    }
+    .horizontal-div {
+      height: 8px;
+      width: 60px;
+      background-color: #fff;
+      position: relative;
+      left:22px;
+      border-radius: 4px;
+      top:56px;
+    }
   }
+
 
   @keyframes moveout{
     0% {
@@ -498,6 +524,33 @@ export default {
     }
   }
 
+  @keyframes addButtonOut{
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+    @keyframes addButtonOut{
+      0% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+      }
+    }
+
+        @keyframes addButtonIn{
+      0% {
+        opacity: 0;
+      }
+      100% {
+        opacity: 1;
+      }
+    }
+
   /*
 
   @keyframes clickitem {
@@ -528,6 +581,16 @@ export default {
   }
 
   */
+
+
+  .doing-text{
+    color: #ff0000;
+  }
+
+  .done-text{
+    text-decoration:line-through;
+    color: #adadad;
+  }
 
   .swiper{
     flex-direction: column;
@@ -619,134 +682,6 @@ export default {
     }
   }
   
-
-  #status-div{
-    .status-div-mixin();
-    animation-name: movein;
-    animation-duration: 200ms;
-    animation-fill-mode: forwards;
-    animation-timing-function: ease-in;
-    animation-iteration-count: 1;
-    > div{
-      width: 100%;
-      height: 72px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      padding:0px 46px 0px 46px;
-    }
-    .status-div-fir-div {
-      > div {
-        width: 248px;
-        height: 72px;
-        border-radius: 36px;
-        background-color: @myyellow;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: 800;
-          color: rgb(50, 50, 50);
-        }
-      }
-    }
-    .status-div-sec-div {
-      > .status-div-sec-div-fir {
-        width: 248px;
-        height: 72px;
-        border-radius: 36px;
-        background-color: #8b0000;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: 800;
-          color: #fff;
-        }
-      }
-      > .status-div-sec-div-sec {
-        width: 248px;
-        height: 72px;
-        border-radius: 36px;
-        background-color: rgb(160, 160, 160);
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: 800;
-          color: #fff;
-        }
-      }
-    }
-  }
-
-  #status-div-out{
-    .status-div-mixin();
-    animation-name: moveout;
-    animation-duration: 200ms;
-    animation-fill-mode: forwards;
-    animation-timing-function: ease-in;
-    animation-iteration-count: 1;
-    > div{
-      width: 100%;
-      height: 72px;
-      display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      padding:0px 46px 0px 46px;
-    }
-    .status-div-fir-div {
-      > div {
-        width: 248px;
-        height: 72px;
-        border-radius: 36px;
-        background-color: @myyellow;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 36px;
-          font-weight: bold;
-          color: rgb(50, 50, 50);
-        }
-      }
-    }
-    .status-div-sec-div {
-      > .status-div-sec-div-fir {
-        width: 248px;
-        height: 72px;
-        border-radius: 36px;
-        background-color: #8b0000;
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 38px;
-          font-weight: bold;
-          color: #fff;
-        }
-      }
-      > .status-div-sec-div-sec {
-        width: 248px;
-        height: 72px;
-        border-radius: 38px;
-        background-color: rgb(160, 160, 160);
-        > text {
-          width: 100%;
-          height: 100%;
-          text-align: center;
-          font-size: 38px;
-          font-weight: bold;
-          color: #fff;
-        }
-      }
-    }
-  }
 
   .delete-checkbox{
     width: 84px;
@@ -898,33 +833,35 @@ export default {
     text-align: center;
   }
 
-  .add-button{
-    z-index: 10;
-    position: fixed;
+  #add-button{
     bottom: 68px;
     right: 68px;
-    width: 120px;
-    height: 120px;
-    background-color: @myyellow;
-    border-radius: 50%;
-    .vertical-div {
-      height: 60px;
-      width: 8px;
-      background-color: #fff;
-      position: relative;
-      left:56px;
-      border-radius: 4px;
-      top:30px;
-    }
-    .horizontal-div {
-      height: 8px;
-      width: 60px;
-      background-color: #fff;
-      position: relative;
-      left:22px;
-      border-radius: 4px;
-      top:56px;
-    }
+    .add-button-mixin();
+    opacity: 1;
+  }
+
+  #add-button-out{
+    .add-button-mixin();
+    bottom: 68px;
+    right: 68px;
+    animation-name: addButtonOut;
+    animation-duration: 100ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    opacity: 0;
+  }
+
+    #add-button-in{
+    .add-button-mixin();
+    bottom: 68px;
+    right: 68px;
+    animation-name: addButtonIn;
+    animation-duration: 100ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: linear;
+    animation-iteration-count: 1;
+    opacity: 1;
   }
 
 </style>

@@ -41,9 +41,6 @@
       "Home": {
         "component": "index"
       },
-      "DemoDetail": {
-        "component": "index"
-      },
       "About": {
         "component": "index"
       }
