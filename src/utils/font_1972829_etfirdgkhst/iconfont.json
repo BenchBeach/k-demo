@@ -1,0 +1,30 @@
+{
+  "id": "1972829",
+  "name": "q-app",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "15838430",
+      "name": "ashbin",
+      "font_class": "ashbin",
+      "unicode": "e665",
+      "unicode_decimal": 58981
+    },
+    {
+      "icon_id": "15838477",
+      "name": "file-add",
+      "font_class": "file-add",
+      "unicode": "e66f",
+      "unicode_decimal": 58991
+    },
+    {
+      "icon_id": "15838530",
+      "name": "select",
+      "font_class": "select",
+      "unicode": "e67e",
+      "unicode_decimal": 59006
+    }
+  ]
+}

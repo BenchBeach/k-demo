@@ -1,0 +1,29 @@
+@font-face {font-family: "iconfont";
+  src: url('iconfont.eot?t=1595955838191'); /* IE9 */
+  src: url('iconfont.eot?t=1595955838191#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAPkAAsAAAAACDQAAAOVAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDHAqDdIMkATYCJAMQCwoABCAFhG0HRBsSB1GUzc0e2Y8Ex1jqgSVs1dXQqRqFqAfSf+Ph+zX25+6+FUyTamSonkgkkoiXDCESKoRCCnT4UgI/7a/e7Hrm42Cna3AC1Nggz+aDlOWkROW1YG4zA0L9UNBIMk3aJzexxzxn/rh3+kedBzafZbmMtXCv86gLMBpbAxt7AAVawtgwduVFbCbQaIADtDZZbQVDYvQKxFUSuYKR0ko1yaEWypKJCeIVCnXWKDgAwYv/+/gPnZCBTJGDMXDjZBwIvW88/IQVygpbLgK88cxg08gxByTirNR6QA59c4QaleaKBaBWyxirjh9+SiXi70Vam395hExOlGAkNoN55M/5hs0g+GYGGd8/mZvEU/cajXgDPhCx74MKSQzJZDWWVRfzBurFGCm2rfDgpg7gptGKMUJEdMuSHdnRF5PmicrxtH5t0qsJOLdCg+lDYjajeUIb9Y03jYKGrAQJocqWGtA7Vhw1bsEMb+r0xfihlYpQ3KeFErkmLXE/YaHMRwQ9cbi1DKZSa5IhOERN+id6fXqPVlRf5USzZmR2f/NYhUZGT4/XfPu+P0+/xr8o77/PqumpsV4WPL2/uqe8hVf6sGtn+Mk7xjvk/v9tutVx1YFNXoLGWTXmklXVV+XcSLVVTo295DQWXIZRA4+PtI2NyHv+otwVR7/s/OP1+LWwhQ75wuKjHZZfybHnEqf4WrqXL9iGLCtmemYsYXdtthsSXDXVM+WCl//Uk4A2nQx8vDTqmukOXF0OT1Jdc93GjR3LBbgj4PdObhaa4O57corsAUD+LLX81U7etbfMkmve/zW5rJyvSfEP2X73FGjP/TU8hfcPeS3TkiowdCnJQpur7ZSsU0GGRo34cyE63Y4h72mdSKj1xJCp9EOuNoYm4hwUmsxDqbYIjWYFTG/SpYAskhyYUQsgtJuBTKtPyLU7RBPxBgq93qHUHkJotBnqCzaZiFzL5wT3goDSnpTrcxlahosVJK8RXXP3lBT45D1O58RJrk4u2eAUJU5jDCm8RZ2iS0hZJy7IH2yHPGfKO3EK/9LIuVwOXWfnrLI3NdK5ECyrTsB1AQGS5onk8rFS6Ga/sHLfX4PIVc51qkmpMO/ByVnSOHHlxKUFOpWWrVKu5ZpCN5GOIhchkuWEFYg/MENu+hjJK2+XAt9FQ04Pz0GXM8qU1VbamF9ePOESaGQcmUKAhEiExFDun2MvKY2sJEc9NQi0QuRnqxEEAAAA') format('woff2'),
+  url('iconfont.woff?t=1595955838191') format('woff'),
+  url('iconfont.ttf?t=1595955838191') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+  url('iconfont.svg?t=1595955838191#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-ashbin:before {
+  content: "\e665";
+}
+
+.icon-file-add:before {
+  content: "\e66f";
+}
+
+.icon-select:before {
+  content: "\e67e";
+}
+

@@ -25,6 +25,8 @@
       "name": "system.calendar" 
     },{ 
       "name": "service.asr" 
+    },{ 
+      "name": "system.vibrator" 
     }
   ],
   "permissions": [
