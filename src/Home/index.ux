@@ -1,9 +1,12 @@
 <import name="header" src="./header.ux"></import>
+<import name="filter" src="./filter.ux"></import>
+<import name="status-change" src="./statusChange.ux"></import>
+ 
+ 
  
 <template>
   <div class="home-page">
     <header status="{{status}}"></header>
-    
     <swiper id="swiper" class="swiper" autoplay="false" indicator="false" duration="600" previousmargin="{{marginValue}}" loop="false" @change="handleSwiperChange">
       <list>
         <list-item for="listData" if="{{$item.status==1}}" type="listItem" class="list-item" tid="uniqueId" @click="handleReWrite($idx)" @longpress="openDelete">
@@ -43,8 +46,9 @@
       <div class="vertical-div"></div>
       <div class="horizontal-div"></div>
     </div>
-    <div id="{{filterId}}" if="filterShow" @click="handleCancel">
-    </div>
+    
+    <filter if="filterShow"></filter>
+
     <div id="{{addDivId}}" if="filterShow">
         <textarea @change="textareaChange" class="add-textarea" placeholder="输入待办事项" maxlength=40>
         {{newToDo}}
@@ -74,17 +78,9 @@
           </div>
         </div>
     </div>
-    <div id="{{statusDivId}}" if="deleteFlag">
-      <div class="status-div-fir-div">
-        <div if="status!='todo'" @click="changeStatus(1)"><text>移至待办</text></div>
-        <div if="status!='doing'" @click="changeStatus(2)"><text>移至在办</text></div>
-        <div if="status!='done'" @click="changeStatus(3)"><text>移至已办</text></div>
-      </div>
-      <div class="status-div-sec-div">
-        <div class="status-div-sec-div-fir" @click="handleDelete"><text>删除</text></div>
-        <div class="status-div-sec-div-sec" @click="handleCancelStatus"><text>取消</text></div>
-      </div>
-    </div>
+
+    <status-change if="deleteFlag" status-div-id="{{statusDivId}}" status="{{status}}"></status-change>
+
   </div>
 </template>
 
@@ -102,7 +98,6 @@ export default {
     status:'todo',                            //menu状态
     filterShow:false,                         //遮罩和弹窗开关控制
     addDivId:'add-div',                       //弹窗动画控制
-    filterId:'filter',                        //弹窗动画控制
     newToDo:'',                               //弹窗input
     reWriteFlag:false,                        //添加或修改flag
     reWriteId:0,                              //修改list index
@@ -122,7 +117,14 @@ export default {
   
   onInit() {
     this.$on('reNewStorage',this.handleReNewStorage)         //订阅更新storage
+
     this.$on('changePage',this.changePage)                   //header 点击事件
+
+    this.$on('handleCancel',this.handleCancel)               //filter点击事件
+
+    this.$on('changeStatus',this.changeStatus)              //status-change
+    this.$on('handleDelete',this.handleDelete)
+    this.$on('handleCancelStatus',this.handleCancelStatus)
     let that=this
     storage.get({
       key: 'listData',
@@ -249,7 +251,8 @@ export default {
       m:e.minute
     }
   },
-  changeStatus(status){
+  changeStatus(evt){
+    let status=evt.detail.index
     this.listData.forEach((ele)=>{
       if(ele.checked){
         ele.status=status
@@ -315,7 +318,6 @@ export default {
   },
   handleCancel(){                                       //取消添加 （和放弃不一样
     this.addDivId='add-div-out'
-    this.filterId='filter-out'
     if(this.reWriteFlag){
       this.newToDo=''
       this.ddl={
@@ -327,7 +329,6 @@ export default {
     setTimeout(()=>{
       this.filterShow=false
       this.addDivId='add-div'
-      this.filterId='filter'
     },196)
   },
   textareaChange(e){
@@ -464,15 +465,6 @@ export default {
     justify-content: space-between;
     align-items: center;
     padding: 68px 48px 68px 48px;
-  }
-
-  @keyframes filterout{
-    0% {
-      opacity: 0.2;
-    }
-    100% {
-      opacity: 0;
-    }
   }
 
   @keyframes moveout{
@@ -858,29 +850,6 @@ export default {
       border-radius: 40px;
       margin: 28px 16px 0px 16px;
     }
-  }
-
-  #filter{
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    opacity: .2;
-    z-index: 20;
-  }
-
-  #filter-out{
-    position: fixed;
-    width: 100%;
-    height: 100%;
-    background-color: #000;
-    opacity: .2;
-    z-index: 20;
-    animation-name: filterout;
-    animation-duration: 200ms;
-    animation-fill-mode: forwards;
-    animation-timing-function: linear;
-    animation-iteration-count: 1;
   }
 
   .list-item{

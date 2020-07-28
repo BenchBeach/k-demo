@@ -1,0 +1,195 @@
+<template>
+    <div id="{{statusDivId}}">
+      <div class="status-div-fir-div">
+        <div if="status!='todo'" @click="changeStatus(1)"><text>移至待办</text></div>
+        <div if="status!='doing'" @click="changeStatus(2)"><text>移至在办</text></div>
+        <div if="status!='done'" @click="changeStatus(3)"><text>移至已办</text></div>
+      </div>
+      <div class="status-div-sec-div">
+        <div class="status-div-sec-div-fir" @click="handleDelete"><text>删除</text></div>
+        <div class="status-div-sec-div-sec" @click="handleCancelStatus"><text>取消</text></div>
+      </div>
+    </div>
+</template>
+
+<script>
+export default {
+  props: ['statusDivId','status'],
+  changeStatus(index){
+    this.$dispatch('changeStatus',{index})
+  },
+  handleDelete(){
+    this.$dispatch('handleDelete')
+  },
+  handleCancelStatus(){
+    this.$dispatch('handleCancelStatus')
+  }
+}
+</script>
+
+<style lang="less">
+
+  @myyellow:#ffc100;
+
+  .status-div-mixin() {
+    z-index: 30;
+    position: fixed;
+    border-radius: 40px;
+    height: 320px;
+    width: 100%;
+    background-color: #fff;
+    bottom: 0px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 68px 48px 68px 48px;
+  }
+
+  @keyframes moveout{
+    0% {
+      transform: translateY(0px);
+    }
+    100% {
+      transform: translateY(300px);
+    }
+  }
+
+  @keyframes movein{
+    0% {
+      transform: translateY(300px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+
+    #status-div{
+    .status-div-mixin();
+    animation-name: movein;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+    > div{
+      width: 100%;
+      height: 72px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding:0px 46px 0px 46px;
+    }
+    .status-div-fir-div {
+      > div {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: @myyellow;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: 800;
+          color: rgb(50, 50, 50);
+        }
+      }
+    }
+    .status-div-sec-div {
+      > .status-div-sec-div-fir {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: #8b0000;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: 800;
+          color: #fff;
+        }
+      }
+      > .status-div-sec-div-sec {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: rgb(160, 160, 160);
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: 800;
+          color: #fff;
+        }
+      }
+    }
+  }
+
+  #status-div-out{
+    .status-div-mixin();
+    animation-name: moveout;
+    animation-duration: 200ms;
+    animation-fill-mode: forwards;
+    animation-timing-function: ease-in;
+    animation-iteration-count: 1;
+    > div{
+      width: 100%;
+      height: 72px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding:0px 46px 0px 46px;
+    }
+    .status-div-fir-div {
+      > div {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: @myyellow;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 36px;
+          font-weight: bold;
+          color: rgb(50, 50, 50);
+        }
+      }
+    }
+    .status-div-sec-div {
+      > .status-div-sec-div-fir {
+        width: 248px;
+        height: 72px;
+        border-radius: 36px;
+        background-color: #8b0000;
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 38px;
+          font-weight: bold;
+          color: #fff;
+        }
+      }
+      > .status-div-sec-div-sec {
+        width: 248px;
+        height: 72px;
+        border-radius: 38px;
+        background-color: rgb(160, 160, 160);
+        > text {
+          width: 100%;
+          height: 100%;
+          text-align: center;
+          font-size: 38px;
+          font-weight: bold;
+          color: #fff;
+        }
+      }
+    }
+  }
+
+</style>
